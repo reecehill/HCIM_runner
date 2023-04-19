@@ -1,19 +1,28 @@
-try:
-    import requests
-    import os
-    import shutil
-    import argparse
-except Exception as e:
-    print(e)
-    exit()
 
 def download_url(url: str, save_path: str, chunk_size: int=128) -> None:
+    try:
+        import requests
+    except Exception as e:
+        print(e)
+        exit()
+
     r = requests.get(url, stream=True)
     with open(save_path, 'wb') as fd:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
 
 def run_main(user: str, host: str, nameOfKey: str) -> None:
+    try:
+        import os
+        import sys
+        import shutil
+    except Exception as e:
+        print(e)
+        exit()
+    print("***ENVIRONMENT:")
+    print("Python: "+ str(sys.version # type: ignore
+))
+    
     print("Cleaning directory.")
     try:
         shutil.rmtree(path=os.path.join(os.getcwd() + "/Human-Connectome-Investigating-Modularity-version-2"), ignore_errors=True)
@@ -119,6 +128,7 @@ def run_main(user: str, host: str, nameOfKey: str) -> None:
         exit()
 
 if __name__ == "__main__":
+    
     try:
         import sys
         if len( sys.argv ) > 1:
