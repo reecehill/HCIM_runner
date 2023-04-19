@@ -22,7 +22,7 @@ def run_main(user: str, host: str, nameOfKey: str) -> None:
     print("***ENVIRONMENT:")
     print("Python: "+ str(sys.version # type: ignore
 ))
-    
+  
     print("Cleaning directory.")
     try:
         shutil.rmtree(path=os.path.join(os.getcwd() + "/Human-Connectome-Investigating-Modularity-version-2"), ignore_errors=True)
@@ -42,7 +42,43 @@ def run_main(user: str, host: str, nameOfKey: str) -> None:
     save_path = os.path.join(cwd+"/download.zip")
     print("Will save to: "+url)
 
-    print("Downloading...")
+    pathToKey = os.path.join(cwd + "/" + nameOfKey)
+    print("Checking that key is in place: "+ pathToKey)
+    try: 
+        os.path.exists(pathToKey)
+        print("Key is in correct destination.")
+    except Exception as e:
+        print(e)
+        exit()
+
+    print("Ensuring key permissions: "+ pathToKey)
+    try: 
+        print("Trying to set key file permissionss to 600.")
+        os.chmod(pathToKey, 0o600)
+    except Exception as e:
+        print(e)
+        exit()
+
+    if(os.access(pathToKey, os.R_OK) and not (os.access(pathToKey, os.W_OK) or os.access(pathToKey, os.X_OK) or os.access(pathToKey, os.F_OK))):
+        print("Key file permissions set correctly.")
+    else:
+        print("Couldn't automatically set key file permissions using method 1. Trying next method...")
+        try:
+            import subprocess
+            chmodProcess = subprocess.Popen(["chmod",'600',pathToKey], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            chmodProcess.communicate()
+            if(os.access(pathToKey, os.R_OK) and not (os.access(pathToKey, os.W_OK) or os.access(pathToKey, os.X_OK) or os.access(pathToKey, os.F_OK))):
+                print("File permissions set successfully.")
+            else:
+                raise
+
+        except Exception as e:
+            print(e)
+            print("ERROR: Could not automatically sort file permissions. Please manually set the permissions of the following file to 600 (read-only) by running this command: ")
+            print("chmod 600 "+pathToKey)
+            exit()
+
+    print("Downloading scripts...")
     try:
         download_url(url=url, save_path=save_path)
         print("Downloaded successfully.")
@@ -86,29 +122,6 @@ def run_main(user: str, host: str, nameOfKey: str) -> None:
         except Exception as e:
             print(e)
             os.chdir(scriptRoot)
-            exit()
-
-        pathToKey = os.path.join(cwd + "/" + nameOfKey)
-        print("Checking that key is in place: "+ pathToKey)
-        try: 
-            os.path.exists(pathToKey)
-            print("Key is in correct destination.")
-        except Exception as e:
-            print(e)
-            os.chdir(scriptRoot)
-            exit()
-
-        print("Ensuring key permissions: "+ pathToKey)
-        try: 
-            print("Trying to set key file permissionss to 600.")
-            os.chmod(pathToKey, int('600', base=8))
-        except Exception as e:
-            print(e)
-            os.chdir(scriptRoot)
-            exit()
-
-        if(os.access(pathToKey, os.R_OK) and not (os.access(pathToKey, os.W_OK) or os.access(pathToKey, os.X_OK) or os.access(pathToKey, os.F_OK))):
-            print("ERROR: Could not automatically sort file permissions. Please manually set the permissions of the following file to 600 (read-only).")
             exit()
 
         print("RUNNING MAIN PYTHON FILE: __main__.py")
