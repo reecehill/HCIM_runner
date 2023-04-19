@@ -98,6 +98,18 @@ def run_main(user: str, host: str, nameOfKey: str) -> None:
             os.chdir(scriptRoot)
             exit()
 
+        print("Ensuring key permissions: "+ pathToKey)
+        try: 
+            print("Trying to set key file permissionss to 600.")
+            os.chmod(pathToKey, int('600', base=8))
+        except Exception as e:
+            print(e)
+            os.chdir(scriptRoot)
+            exit()
+
+        if(os.access(pathToKey, os.R_OK) and not (os.access(pathToKey, os.W_OK) or os.access(pathToKey, os.X_OK) or os.access(pathToKey, os.F_OK))):
+            print("ERROR: Could not automatically sort file permissions. Please manually set the permissions of the following file to 600 (read-only).")
+            exit()
 
         print("RUNNING MAIN PYTHON FILE: __main__.py")
         try: 
@@ -105,7 +117,9 @@ def run_main(user: str, host: str, nameOfKey: str) -> None:
             print("Host: " + host)
             print("NOTE: Passwordless authentication will be used, reading the key file from: ")
             print("pathToKey: " + pathToKey)
-            mainFile = subprocess.Popen(['python', "__main__.py", "-U", user, "-H", host, "-K", pathToKey])
+            pythonExecutable = os.path.realpath(sys.executable)
+            print("Python executable: " + pythonExecutable)
+            mainFile = subprocess.Popen([pythonExecutable, "__main__.py", "-U", user, "-H", host, "-K", pathToKey])
             mainFile.communicate()
             print("Launched __main__.py successfully.")
         except Exception as e:
