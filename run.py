@@ -11,7 +11,7 @@ def download_url(url: str, save_path: str, chunk_size: int=128) -> None:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
 
-def run_main(user: str, host: str, nameOfKey: str) -> None:
+def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) -> None:
     try:
         import os
         import sys
@@ -37,7 +37,7 @@ def run_main(user: str, host: str, nameOfKey: str) -> None:
     print("Will call Github at: "+url)
 
     cwd = os.getcwd()
-    print("Current working directory: "+url)
+    print("Current working directory: "+cwd)
 
     save_path = os.path.join(cwd+"/download.zip")
     print("Will save to: "+url)
@@ -164,10 +164,12 @@ if __name__ == "__main__":
             parser.add_argument("-U", "--user", type=str, default="CLI_ARGUMENT_ERROR")
             parser.add_argument("-H", "--host", type=str, default="CLI_ARGUMENT_ERROR")
             parser.add_argument("-K", "--nameOfKey", type=str, default="CLI_ARGUMENT_ERROR")
+            parser.add_argument("-S", "--startAFresh", type=bool, default=False)
             args = parser.parse_args()
             user = args.user
             host = args.host
             nameOfKey = args.nameOfKey
+            startAFresh = args.startAFresh
         else:
             import os
             from dotenv import load_dotenv
@@ -175,11 +177,12 @@ if __name__ == "__main__":
             user = os.getenv('DEFAULT_USER') or "ENV_ERROR"
             host = os.getenv('DEFAULT_HOST') or "ENV_ERROR"
             nameOfKey = os.getenv('DEFAULT_NAME_OF_KEY') or "ENV_ERROR"
+            startAFresh = bool(os.getenv('DEFAULT_START_A_FRESH')) or False
 
         print("Launching runner using: ")
         print("User: "+user)
         print("Host: "+host)
         print("nameOfKey: "+nameOfKey)
-        run_main(user, host, nameOfKey)
+        run_main(user, host, nameOfKey, startAFresh)
     except Exception as e:
         raise
