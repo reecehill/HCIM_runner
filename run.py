@@ -1,3 +1,5 @@
+from io import StringIO
+
 
 def download_url(url: str, save_path: str, chunk_size: int=128) -> None:
     try:
@@ -16,6 +18,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
         import os
         import sys
         import shutil
+        import subprocess
     except Exception as e:
         print(e)
         exit()
@@ -64,7 +67,6 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
     else:
         print("Couldn't automatically set key file permissions using method 1. Trying next method...")
         try:
-            import subprocess
             chmodProcess = subprocess.Popen(["chmod",'400',pathToKey], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             chmodProcess.communicate()
             if(os.access(pathToKey, os.R_OK) and not (os.access(pathToKey, os.W_OK) or os.access(pathToKey, os.X_OK))):
@@ -94,19 +96,70 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
         print(e)
         exit()
 
+
     unpackedDir = os.path.join(cwd + "/Human-Connectome-Investigating-Modularity-version-2")
+    print("Copying awsconfig file to project folder")
+    try: 
+        shutil.copyfile(src="awsconfig", dst=os.path.join(unpackedDir + '/awsconfig'))
+        print("Extracted successfully.")
+    except Exception as e:
+        print(e)
+        exit()
+        
     print("Moving into folder: "+ unpackedDir)
     try: 
+        venvPath = os.path.join(cwd + "/.venv")
+        #if(os.path.exists(venvPath)): shutil.rmtree(path=venvPath, ignore_errors=True)
         os.chdir(unpackedDir)
         print("Moved into folder successfully.")
-        print("Install using PIP the requirements of the project")
+
+              
+        print("Attempting to set-up virtual environment: "+venvPath)
+        pOpenVenv = subprocess.Popen([sys.executable, "-m", "venv", venvPath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pOpenVenv.communicate()
+        if(os.path.exists(os.path.join(venvPath + "/bin/activate"))):
+            print("Virtual environment created successfully.")
+        else:
+            print("Error creating the virtual environment. Could not find .venv/bin/activate file for activation.")
+            exit()
+
+        print("Installing the PIP requirements of the main project")
+        try:
+            import sys
+            pathOfRequirements = os.path.join(unpackedDir + "/requirements.txt")
+            with subprocess.Popen([f"source {venvPath}/bin/activate; pip3 install -vvv -r {pathOfRequirements} --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1,
+           universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
+                if(p.stdout is not None):
+                    for line in p.stdout:
+                        print(line, end='')
+                        buf.write(line)
+            os.chdir(unpackedDir)
+            print("Successfully ran `"+ "source ", venvPath + "/bin/activate; "+ "pip3 ", "install ", "-r ", pathOfRequirements +"`")
+            print(".*.*.*.*.*.*.*")
+            print("Installation successful.")
+        except Exception as e:
+            print(e)
+            os.chdir(cwd)
+            exit()
+            
+        print("Installing the requirements of dependencies")
         try:
             import subprocess
             import sys
-            pathOfRequirements = os.path.join(unpackedDir + "/requirements.txt")
-            subprocess.check_call([sys.executable, "-m", "pip", "install", "-U", "-r", pathOfRequirements])
+            ibc_public = os.path.join(unpackedDir + "/scripts/src/public_analysis_code")
+            os.chdir(ibc_public)
+            pathOfDepRequirements = os.path.join(ibc_public + "/requirements.txt")
+            with subprocess.Popen([f"source {venvPath}/bin/activate; pip3 install -vvv -r {pathOfDepRequirements}  --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1, universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
+                if(p.stdout is not None):
+                    for line in p.stdout:
+                        print(line, end='')
+                        buf.write(line)
+
             os.chdir(unpackedDir)
-            print("Successfully ran `"+ sys.executable, " -m", "pip ", "install ", "-U ", "-r ", pathOfRequirements +"`")
+            
+            popen1 = subprocess.Popen([f"source {venvPath}/bin/activate; which pip3; pip3 list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            popen1.communicate()
+            print("Successfully ran `"+ "pip3 ", "install ", "-r ", pathOfDepRequirements +"`")
             print(".*.*.*.*.*.*.*")
             print("Installation successful.")
         except Exception as e:
@@ -130,11 +183,10 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
             print("Host: " + host)
             print("NOTE: Passwordless authentication will be used, reading the key file from: ")
             print("pathToKey: " + pathToKey)
-            pythonExecutable = os.path.realpath(sys.executable)
-            print("Python executable: " + pythonExecutable)
-            mainFile = subprocess.Popen([pythonExecutable, "__main__.py", "-U", user, "-H", host, "-K", pathToKey])
+            mainFilePath = os.path.join(scriptRoot + "/__main__.py")
+            mainFile = subprocess.Popen([f". {venvPath}/bin/activate; python3 {mainFilePath} -U {user} -H {host} -K {pathToKey}"], shell=True)
             mainFile.communicate()
-            print("Launched __main__.py successfully.")
+            print("Reached end of __main__.py.")
         except Exception as e:
             print(e)
             os.chdir(cwd)
