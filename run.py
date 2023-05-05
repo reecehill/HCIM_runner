@@ -127,14 +127,14 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
         try:
             import sys
             pathOfRequirements = os.path.join(unpackedDir + "/requirements.txt")
-            with subprocess.Popen([f"source {venvPath}/bin/activate; pip3 install -vvv -r {pathOfRequirements} --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1,
+            with subprocess.Popen([f"source {venvPath}/bin/activate; {sys.executable} -m pip install -vvv -r {pathOfRequirements} --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1,
            universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
                 if(p.stdout is not None):
                     for line in p.stdout:
                         print(line, end='')
                         buf.write(line)
             os.chdir(unpackedDir)
-            print("Successfully ran `"+ "source ", venvPath + "/bin/activate; "+ "pip3 ", "install ", "-r ", pathOfRequirements +"`")
+            print("Successfully ran `"+ "source ", venvPath + "/bin/activate; "+ "{sys.executable} -m pip ", "install ", "-r ", pathOfRequirements +"`")
             print(".*.*.*.*.*.*.*")
             print("Installation successful.")
         except Exception as e:
@@ -149,7 +149,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
             ibc_public = os.path.join(unpackedDir + "/scripts/src/public_analysis_code")
             os.chdir(ibc_public)
             pathOfDepRequirements = os.path.join(ibc_public + "/requirements.txt")
-            with subprocess.Popen([f"source {venvPath}/bin/activate; pip3 install -vvv -r {pathOfDepRequirements}  --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1, universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
+            with subprocess.Popen([f"source {venvPath}/bin/activate; {sys.executable} -m pip install -vvv -r {pathOfDepRequirements}  --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1, universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
                 if(p.stdout is not None):
                     for line in p.stdout:
                         print(line, end='')
@@ -157,9 +157,9 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
 
             os.chdir(unpackedDir)
             
-            popen1 = subprocess.Popen([f"source {venvPath}/bin/activate; which pip3; pip3 list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            popen1 = subprocess.Popen([f"source {venvPath}/bin/activate; {sys.executable} -m pip list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             popen1.communicate()
-            print("Successfully ran `"+ "pip3 ", "install ", "-r ", pathOfDepRequirements +"`")
+            print("Successfully ran `"+ sys.executable+ " -m pip ", "install ", "-r ", pathOfDepRequirements +"`")
             print(".*.*.*.*.*.*.*")
             print("Installation successful.")
         except Exception as e:
