@@ -184,7 +184,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
             print("NOTE: Passwordless authentication will be used, reading the key file from: ")
             print("pathToKey: " + pathToKey)
             mainFilePath = os.path.join(scriptRoot + "/__main__.py")
-            mainFile = subprocess.Popen([f". {venvPath}/bin/activate; python3 {mainFilePath} -U {user} -H {host} -K {pathToKey}"], shell=True)
+            mainFile = subprocess.Popen([f". {venvPath}/bin/activate; {sys.executable} {mainFilePath} -U {user} -H {host} -K {pathToKey}"], shell=True)
             mainFile.communicate()
             print("Reached end of __main__.py.")
         except Exception as e:
