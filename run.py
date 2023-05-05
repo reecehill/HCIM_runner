@@ -225,7 +225,7 @@ if __name__ == "__main__":
         else:
             import os
             from dotenv import load_dotenv
-            k = load_dotenv(os.getcwd()+"/../.env")
+            k = load_dotenv(os.path.join(os.path.dirname(os.path.abspath(__file__))+"/.env"))
             user = os.getenv('DEFAULT_USER') or "ENV_ERROR"
             host = os.getenv('DEFAULT_HOST') or "ENV_ERROR"
             nameOfKey = os.getenv('DEFAULT_NAME_OF_KEY') or "ENV_ERROR"
