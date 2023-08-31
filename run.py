@@ -157,7 +157,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
 
             os.chdir(unpackedDir)
             
-            popen1 = subprocess.Popen([f"source {venvPath}/bin/activate; {sys.executable} -m pip list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            popen1 = subprocess.Popen([f"source {venvPath}/bin/activate;  {sys.executable} -m pip install -U pip; {sys.executable} -m pip install -U setuptools; {sys.executable} -m pip install boto3; {sys.executable} -m pip list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             popen1.communicate()
             print("Successfully ran `"+ sys.executable+ " -m pip ", "install ", "-r ", pathOfDepRequirements +"`")
             print(".*.*.*.*.*.*.*")
@@ -184,7 +184,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
             print("NOTE: Passwordless authentication will be used, reading the key file from: ")
             print("pathToKey: " + pathToKey)
             mainFilePath = os.path.join(scriptRoot + "/__main__.py")
-            mainFile = subprocess.Popen([f". {venvPath}/bin/activate; {sys.executable} {mainFilePath} -U {user} -H {host} -K {pathToKey}"], shell=True)
+            mainFile = subprocess.Popen([f". {sys.executable} {mainFilePath} -U {user} -H {host} -K {pathToKey}"], shell=True)
             mainFile.communicate()
             print("Reached end of __main__.py.")
         except Exception as e:
