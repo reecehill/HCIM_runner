@@ -26,8 +26,9 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
     print("Python: "+ str(sys.version # type: ignore
 ))
 
-    if(startAFresh):
+    if(startAFresh == "true"):
         print("Cleaning directory.")
+        print(startAFresh)
         try:
             shutil.rmtree(path=os.path.join(os.getcwd() + "/Human-Connectome-Investigating-Modularity-version-2"), ignore_errors=True)
         except Exception as e:
@@ -236,12 +237,14 @@ if __name__ == "__main__":
     try:
         import sys
         if len( sys.argv ) > 1:
+
+            # TODO: Current config does NOT default to .env.
             import argparse
             parser = argparse.ArgumentParser()
-            parser.add_argument("-U", "--user", type=str, default="CLI_ARGUMENT_ERROR")
-            parser.add_argument("-H", "--host", type=str, default="CLI_ARGUMENT_ERROR")
-            parser.add_argument("-K", "--nameOfKey", type=str, default="CLI_ARGUMENT_ERROR")
-            parser.add_argument("-S", "--startAFresh", type=bool, default=False)
+            parser.add_argument("-U", "--user", type=str, default="CLI_ARGUMENT_ERROR", required=True)
+            parser.add_argument("-H", "--host", type=str, default="CLI_ARGUMENT_ERROR", required=True)
+            parser.add_argument("-K", "--nameOfKey", type=str, default="CLI_ARGUMENT_ERROR", required=True)
+            parser.add_argument("-S", "--startAFresh", type=str, choices=['false','true'], default="CLI_ARGUMENT_ERROR")
             args = parser.parse_args()
             user = args.user
             host = args.host
@@ -254,7 +257,7 @@ if __name__ == "__main__":
             user = os.getenv('DEFAULT_USER') or "ENV_ERROR"
             host = os.getenv('DEFAULT_HOST') or "ENV_ERROR"
             nameOfKey = os.getenv('DEFAULT_NAME_OF_KEY') or "ENV_ERROR"
-            startAFresh = bool(os.getenv('DEFAULT_START_A_FRESH')) or False
+            startAFresh = os.getenv('DEFAULT_START_A_FRESH') or "false"
 
         print("Launching runner using: ")
         print("User: "+user)
