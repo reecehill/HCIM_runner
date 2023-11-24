@@ -25,14 +25,15 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
     print("***ENVIRONMENT:")
     print("Python: "+ str(sys.version # type: ignore
 ))
-  
-    print("Cleaning directory.")
-    try:
-        shutil.rmtree(path=os.path.join(os.getcwd() + "/Human-Connectome-Investigating-Modularity-version-2"), ignore_errors=True)
-    except Exception as e:
-        print(e)
-        print("Unable to delete directory. Please manually clear the folder; however,dDo NOT delete requirements.txt, run.py, or the key file.")
-        exit()
+
+    if(startAFresh):
+        print("Cleaning directory.")
+        try:
+            shutil.rmtree(path=os.path.join(os.getcwd() + "/Human-Connectome-Investigating-Modularity-version-2"), ignore_errors=True)
+        except Exception as e:
+            print(e)
+            print("Unable to delete directory. Please manually clear the folder; however,dDo NOT delete requirements.txt, run.py, or the key file.")
+            exit()
 
     print("Preparing environment.")
     # Github URL .zip to download
@@ -119,6 +120,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
         pOpenVenv.communicate()
         if(os.path.exists(os.path.join(venvPath + "/bin/activate"))):
             print("Virtual environment created successfully.")
+            pythonExecutableVenv = os.path.join(venvPath + "/bin/python3")
         else:
             print("Error creating the virtual environment. Could not find .venv/bin/activate file for activation.")
             exit()
@@ -127,7 +129,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
         try:
             import sys
             pathOfRequirements = os.path.join(unpackedDir + "/requirements.txt")
-            with subprocess.Popen([f"source {venvPath}/bin/activate; {sys.executable} -m pip install -vvv -r {pathOfRequirements} --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1,
+            with subprocess.Popen([f"{pythonExecutableVenv} -m pip install -vvv -r {pathOfRequirements} --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1,
            universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
                 if(p.stdout is not None):
                     for line in p.stdout:
@@ -149,7 +151,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
             ibc_public = os.path.join(unpackedDir + "/scripts/src/public_analysis_code")
             os.chdir(ibc_public)
             pathOfDepRequirements = os.path.join(ibc_public + "/requirements.txt")
-            with subprocess.Popen([f"source {venvPath}/bin/activate; {sys.executable} -m pip install -vvv -r {pathOfDepRequirements}  --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1, universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
+            with subprocess.Popen([f"{pythonExecutableVenv} -m pip install -vvv -r {pathOfDepRequirements}  --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1, universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
                 if(p.stdout is not None):
                     for line in p.stdout:
                         print(line, end='')
@@ -157,7 +159,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
 
             os.chdir(unpackedDir)
             
-            popen1 = subprocess.Popen([f"source {venvPath}/bin/activate;  {sys.executable} -m pip install -U pip; {sys.executable} -m pip install -U setuptools; {sys.executable} -m pip install boto3; {sys.executable} -m pip list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+            popen1 = subprocess.Popen([f"{pythonExecutableVenv} -m pip install -U pip; {pythonExecutableVenv} -m pip install -U setuptools; {pythonExecutableVenv} -m install boto3; {sys.executable} -m pip list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             popen1.communicate()
             print("Successfully ran `"+ sys.executable+ " -m pip ", "install ", "-r ", pathOfDepRequirements +"`")
             print(".*.*.*.*.*.*.*")
@@ -184,7 +186,21 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
             print("NOTE: Passwordless authentication will be used, reading the key file from: ")
             print("pathToKey: " + pathToKey)
             mainFilePath = os.path.join(scriptRoot + "/__main__.py")
-            mainFile = subprocess.Popen([f". {sys.executable} {mainFilePath} -U {user} -H {host} -K {pathToKey}"], shell=True)
+            print("Ensuring __main__.py is executable.")
+            try:
+                chmodProcess = subprocess.Popen(["chmod",'751',mainFilePath], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                chmodProcess.communicate()
+                if(os.access(mainFilePath, os.X_OK)):
+                    print("File permissions set successfully.")
+                else:
+                    raise
+
+            except Exception as e:
+                print(e)
+                print("ERROR: Could not automatically make __main__.py executable. Please manually set the permissions of the following file to 751 (read-only) by running this command: ")
+                print("chmod 751 "+mainFilePath)
+                exit()
+            mainFile = subprocess.Popen([f"{pythonExecutableVenv} {mainFilePath} -U {user} -H {host} -K {pathToKey}"], shell=True)
             mainFile.communicate()
             print("Reached end of __main__.py.")
         except Exception as e:
@@ -197,6 +213,15 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
         try: 
             os.chdir(cwd)
             print("Moved back to root successfully.")
+        except Exception as e:
+            print(e)
+            exit()
+            
+        print("Deactivating venv")
+        try: 
+            deactivateVenv = subprocess.Popen([f"deactivate"], shell=True)
+            deactivateVenv.communicate()
+            print("Venv deactivated.")
         except Exception as e:
             print(e)
             exit()
