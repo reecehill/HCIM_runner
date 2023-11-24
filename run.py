@@ -13,7 +13,7 @@ def download_url(url: str, save_path: str, chunk_size: int=128) -> None:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
 
-def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) -> None:
+def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -> None:
     try:
         import os
         import sys
@@ -82,15 +82,18 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
             print("chmod 400 "+pathToKey)
             exit()
 
-    print("Downloading scripts...")
-    try:
-        download_url(url=url, save_path=save_path)
-        print("Downloaded successfully.")
-    except Exception as e:
-        print(e)
-        exit()
+    if(not os.path.exists(save_path)):
+        print("Downloading scripts...")
+        try:
+            download_url(url=url, save_path=save_path)
+            print("Downloaded successfully.")
+        except Exception as e:
+            print(e)
+            exit()
+    else:
+        print("No need to download scripts - .zip found in place.")
 
-    print("Extracting download.zip to current directory")
+    print("Extracting (and overwriting if existing) download.zip to current directory")
     try: 
         shutil.unpack_archive(filename=save_path)
         print("Extracted successfully.")
@@ -149,20 +152,11 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: bool = False) ->
         try:
             import subprocess
             import sys
-            ibc_public = os.path.join(unpackedDir + "/scripts/src/public_analysis_code")
-            os.chdir(ibc_public)
-            pathOfDepRequirements = os.path.join(ibc_public + "/requirements.txt")
-            with subprocess.Popen([f"{pythonExecutableVenv} -m pip install -vvv -r {pathOfDepRequirements}  --require-virtualenv"], shell=True, executable="/bin/bash", bufsize=1, universal_newlines=True, stderr=subprocess.PIPE) as p, StringIO() as buf:
-                if(p.stdout is not None):
-                    for line in p.stdout:
-                        print(line, end='')
-                        buf.write(line)
-
             os.chdir(unpackedDir)
             
             popen1 = subprocess.Popen([f"{pythonExecutableVenv} -m pip install -U pip; {pythonExecutableVenv} -m pip install -U setuptools; {pythonExecutableVenv} -m install boto3; {sys.executable} -m pip list"], shell=True, executable="/bin/bash", stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             popen1.communicate()
-            print("Successfully ran `"+ sys.executable+ " -m pip ", "install ", "-r ", pathOfDepRequirements +"`")
+            print("Successfully ran `"+ sys.executable+ " -m pip ", "install ", "-r ", "`")
             print(".*.*.*.*.*.*.*")
             print("Installation successful.")
         except Exception as e:
