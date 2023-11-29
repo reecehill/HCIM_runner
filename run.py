@@ -82,7 +82,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
             print("chmod 400 "+pathToKey)
             exit()
 
-    if(not os.path.exists(save_path)):
+    if(not os.path.exists(save_path) or startAFresh == "true"):
         print("Downloading scripts...")
         try:
             download_url(url=url, save_path=save_path)
