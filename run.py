@@ -13,7 +13,44 @@ def download_url(url: str, save_path: str, chunk_size: int=128) -> None:
         for chunk in r.iter_content(chunk_size=chunk_size):
             fd.write(chunk)
 
+    
+
 def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -> None:
+    def setFilePermissions(file_path: str, file_name: str, permission: str):
+        print("Checking that key is in place: "+ file_path)
+        try: 
+            os.path.exists(file_path)
+            print(f"${file_name} is in correct destination.")
+        except Exception as e:
+            print(e)
+            exit()
+
+        print(f"Ensuring ${file_name} permissions: "+ file_path)
+        try: 
+            print(f"Trying to set ${file_name} file permissions to ${permission} (read-only).")
+            os.chmod(file_path, int(permission,8))
+        except Exception as e:
+            print(e)
+            exit()
+
+        if(file_name=="Given key"):
+            if(os.access(file_path, os.R_OK) and not (os.access(file_path, os.W_OK) or os.access(file_path, os.X_OK))):
+                print("Key file permissions set correctly.")
+            else:
+                print("Couldn't automatically set key file permissions using method 1. Trying next method...")
+                try:
+                    chmodProcess = subprocess.Popen(["chmod",'400',file_path], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                    chmodProcess.communicate()
+                    if(os.access(file_path, os.R_OK) and not (os.access(file_path, os.W_OK) or os.access(file_path, os.X_OK))):
+                        print("File permissions set successfully.")
+                    else:
+                        raise
+
+                except Exception as e:
+                    print(e)
+                    print("ERROR: Could not automatically sort file permissions. Please manually set the permissions of the following file to 600 (read-only) by running this command: ")
+                    print("chmod 400 "+file_path)
+                    exit()
     try:
         import os
         import sys
@@ -48,39 +85,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
     print("Will save to: "+url)
 
     pathToKey = os.path.join(cwd + "/" + nameOfKey)
-    print("Checking that key is in place: "+ pathToKey)
-    try: 
-        os.path.exists(pathToKey)
-        print("Key is in correct destination.")
-    except Exception as e:
-        print(e)
-        exit()
-
-    print("Ensuring key permissions: "+ pathToKey)
-    try: 
-        print("Trying to set key file permissionss to 400 (read-only).")
-        os.chmod(pathToKey, 0o400)
-    except Exception as e:
-        print(e)
-        exit()
-
-    if(os.access(pathToKey, os.R_OK) and not (os.access(pathToKey, os.W_OK) or os.access(pathToKey, os.X_OK))):
-        print("Key file permissions set correctly.")
-    else:
-        print("Couldn't automatically set key file permissions using method 1. Trying next method...")
-        try:
-            chmodProcess = subprocess.Popen(["chmod",'400',pathToKey], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            chmodProcess.communicate()
-            if(os.access(pathToKey, os.R_OK) and not (os.access(pathToKey, os.W_OK) or os.access(pathToKey, os.X_OK))):
-                print("File permissions set successfully.")
-            else:
-                raise
-
-        except Exception as e:
-            print(e)
-            print("ERROR: Could not automatically sort file permissions. Please manually set the permissions of the following file to 600 (read-only) by running this command: ")
-            print("chmod 400 "+pathToKey)
-            exit()
+    setFilePermissions(file_path=pathToKey, file_name="Given key", permission="400")
 
     if(not os.path.exists(save_path) or startAFresh == "true"):
         print("Downloading scripts...")
@@ -110,7 +115,11 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
     except Exception as e:
         print(e)
         exit()
-        
+
+    pathToCgalExe = os.path.join(unpackedDir + "/scripts/matlab/toolboxes/Fieldtrip/external/iso2mesh/bin/cgalmesh.mexglx")
+    setFilePermissions(file_path=pathToCgalExe, file_name="cgalExe", permission="751")
+
+
     print("Moving into folder: "+ unpackedDir)
     try: 
         venvPath = os.path.join(cwd + "/.venv")
