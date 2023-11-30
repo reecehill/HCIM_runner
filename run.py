@@ -20,14 +20,14 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
         print("Checking that key is in place: "+ file_path)
         try: 
             os.path.exists(file_path)
-            print(f"${file_name} is in correct destination.")
+            print(f"{file_name} is in correct destination.")
         except Exception as e:
             print(e)
             exit()
 
-        print(f"Ensuring ${file_name} permissions: "+ file_path)
+        print(f"Ensuring {file_name} permissions: "+ file_path)
         try: 
-            print(f"Trying to set ${file_name} file permissions to ${permission} (read-only).")
+            print(f"Trying to set {file_name} file permissions to {permission} (read-only).")
             os.chmod(file_path, int(permission,8))
         except Exception as e:
             print(e)
@@ -116,8 +116,10 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
         print(e)
         exit()
 
-    pathToCgalExe = os.path.join(unpackedDir + "/scripts/matlab/toolboxes/Fieldtrip/external/iso2mesh/bin/cgalmesh.mexglx")
+    pathToCgalExe = os.path.join(unpackedDir + "/scripts/matlab/toolboxes/FieldTrip/external/iso2mesh/bin/cgalmesh.mexglx")
     setFilePermissions(file_path=pathToCgalExe, file_name="cgalExe", permission="751")
+    pathToCgalExe = os.path.join(unpackedDir + "/scripts/matlab/toolboxes/FieldTrip/external/iso2mesh/bin/cgalsimp2.mexglx")
+    setFilePermissions(file_path=pathToCgalExe, file_name="cgal2Exe", permission="751")
 
 
     print("Moving into folder: "+ unpackedDir)
