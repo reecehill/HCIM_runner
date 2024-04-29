@@ -86,25 +86,30 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
 
     pathToKey = os.path.join(cwd + "/" + nameOfKey)
     setFilePermissions(file_path=pathToKey, file_name="Given key", permission="400")
-
+    scriptsNeedUnpacking = False
     if(not os.path.exists(save_path) or startAFresh == "true"):
         print("Downloading scripts...")
         try:
             download_url(url=url, save_path=save_path)
             print("Downloaded successfully.")
+            scriptsNeedUnpacking = True
         except Exception as e:
             print(e)
             exit()
     else:
+        
         print("No need to download scripts - .zip found in place.")
 
-    print("Extracting (and overwriting if existing) download.zip to current directory")
-    try: 
-        shutil.unpack_archive(filename=save_path)
-        print("Extracted successfully.")
-    except Exception as e:
-        print(e)
-        exit()
+    if(scriptsNeedUnpacking):
+        print("Extracting (and overwriting if existing) download.zip to current directory")
+        try: 
+            shutil.unpack_archive(filename=save_path)
+            print("Extracted successfully.")
+        except Exception as e:
+            print(e)
+            exit()
+    else:
+        print("No need to extract scripts.")
 
 
     unpackedDir = os.path.join(cwd + "/Human-Connectome-Investigating-Modularity-version-2")
