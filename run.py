@@ -67,7 +67,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
         print("Cleaning directory.")
         print(startAFresh)
         try:
-            shutil.rmtree(path=os.path.join(os.getcwd() + "/Human-Connectome-Investigating-Modularity-version-2"), ignore_errors=True)
+            shutil.rmtree(path=os.path.join(os.getcwd() + "/Human-Connectome-Investigating-Modularity-sort-into-modules"), ignore_errors=True)
         except Exception as e:
             print(e)
             print("Unable to delete directory. Please manually clear the folder; however,dDo NOT delete requirements.txt, run.py, or the key file.")
@@ -112,7 +112,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
         print("No need to extract scripts.")
 
 
-    unpackedDir = os.path.join(cwd + "/Human-Connectome-Investigating-Modularity-version-2")
+    unpackedDir = os.path.join(cwd + "/Human-Connectome-Investigating-Modularity-sort-into-modules")
     print("Copying awsconfig file to project folder")
     try: 
         shutil.copyfile(src="awsconfig", dst=os.path.join(unpackedDir + '/awsconfig'))
