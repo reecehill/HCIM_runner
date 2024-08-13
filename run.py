@@ -75,7 +75,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
 
     print("Preparing environment.")
     # Github URL .zip to download
-    url = 'https://github.com/reecehill/Human-Connectome-Investigating-Modularity/archive/refs/heads/version-2.zip'
+    url = 'https://github.com/reecehill/Human-Connectome-Investigating-Modularity/archive/refs/heads/sort-into-modules.zip'
     print("Will call Github at: "+url)
 
     cwd = os.getcwd()
