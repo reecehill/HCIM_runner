@@ -145,11 +145,11 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
         exit()
 
     pathToCgalExe = os.path.join(
-        unpackedDir, "scripts/matlab/toolboxes/FieldTrip/external/iso2mesh/bin/cgalmesh.mexglx"
+        unpackedDir, "scripts", "matlab", "toolboxes","FieldTrip","external","iso2mesh","bin","cgalmesh.mexglx"
     )
     setFilePermissions(file_path=pathToCgalExe, file_name="cgalExe", permission="751")
     pathToCgalExe = os.path.join(
-        unpackedDir, "/scripts/matlab/toolboxes/FieldTrip/external/iso2mesh/bin/cgalsimp2.mexglx"
+        unpackedDir, "scripts","matlab","toolboxes","FieldTrip","external","iso2mesh","bin","cgalsimp2.mexglx"
     )
     setFilePermissions(file_path=pathToCgalExe, file_name="cgal2Exe", permission="751")
 
