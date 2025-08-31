@@ -14,7 +14,7 @@ def download_url(url: str, save_path: str, chunk_size: int = 128) -> None:
             fd.write(chunk)
 
 
-def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -> None:
+def run_main(user: str, host: str, pathToKey: str, startAFresh: str = "false") -> None:
     def setFilePermissions(file_path: str, file_name: str, permission: str):
         print("Checking that key is in place: " + file_path)
         try:
@@ -67,9 +67,9 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
 
     try:
         import os
-        import sys
         import shutil
         import subprocess
+        import sys
     except Exception as e:
         print(e)
         exit()
@@ -104,7 +104,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
     save_path = os.path.join(cwd, "download.zip")
     print("Will save to: " + url)
 
-    pathToKey = os.path.join(cwd, nameOfKey)
+    pathToKey = os.path.join(cwd, pathToKey)
     setFilePermissions(file_path=pathToKey, file_name="Given key", permission="400")
     scriptsNeedUnpacking = False
     if not os.path.exists(save_path) or startAFresh == "true":
@@ -145,11 +145,27 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
         exit()
 
     pathToCgalExe = os.path.join(
-        unpackedDir, "scripts", "matlab", "toolboxes","FieldTrip","external","iso2mesh","bin","cgalmesh.mexglx"
+        unpackedDir,
+        "scripts",
+        "matlab",
+        "toolboxes",
+        "FieldTrip",
+        "external",
+        "iso2mesh",
+        "bin",
+        "cgalmesh.mexglx",
     )
     setFilePermissions(file_path=pathToCgalExe, file_name="cgalExe", permission="751")
     pathToCgalExe = os.path.join(
-        unpackedDir, "scripts","matlab","toolboxes","FieldTrip","external","iso2mesh","bin","cgalsimp2.mexglx"
+        unpackedDir,
+        "scripts",
+        "matlab",
+        "toolboxes",
+        "FieldTrip",
+        "external",
+        "iso2mesh",
+        "bin",
+        "cgalsimp2.mexglx",
     )
     setFilePermissions(file_path=pathToCgalExe, file_name="cgal2Exe", permission="751")
 
@@ -171,7 +187,11 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
         if os.path.exists(os.path.join(venvPath, "bin", "activate")):
             print("Virtual environment created successfully.")
             pOpenVenvStart = subprocess.Popen(
-                ["/bin/bash", "-c", f"source {os.path.join(venvPath, 'bin', 'activate')}"],
+                [
+                    "/bin/bash",
+                    "-c",
+                    f"source {os.path.join(venvPath, 'bin', 'activate')}",
+                ],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
@@ -236,9 +256,7 @@ def run_main(user: str, host: str, nameOfKey: str, startAFresh: str = "false") -
             )
             popen1.communicate()
             popen2 = subprocess.Popen(
-                [
-                    f"which {pythonExecutableVenv}"
-                ],
+                [f"which {pythonExecutableVenv}"],
                 shell=True,
                 executable="/bin/bash",
                 stdout=subprocess.PIPE,
@@ -341,7 +359,7 @@ if __name__ == "__main__":
         if sys.version_info >= (3, 10):
             print("Compatible python version installed.")
         else:
-            raise ValueError("Incorrect python version number. Requires >=3.11")
+            raise ValueError("Incorrect python version number. Requires >=3.10")
 
         if len(sys.argv) > 1:
 
@@ -357,7 +375,7 @@ if __name__ == "__main__":
             )
             parser.add_argument(
                 "-K",
-                "--nameOfKey",
+                "--pathToKey",
                 type=str,
                 default="CLI_ARGUMENT_ERROR",
                 required=True,
@@ -372,10 +390,11 @@ if __name__ == "__main__":
             args = parser.parse_args()
             user = args.user
             host = args.host
-            nameOfKey = args.nameOfKey
+            pathToKey = args.pathToKey
             startAFresh = args.startAFresh
         else:
             import os
+
             from dotenv import load_dotenv
 
             k = load_dotenv(
@@ -383,13 +402,14 @@ if __name__ == "__main__":
             )
             user = os.getenv("DEFAULT_USER") or "ENV_ERROR"
             host = os.getenv("DEFAULT_HOST") or "ENV_ERROR"
-            nameOfKey = os.getenv("DEFAULT_NAME_OF_KEY") or "ENV_ERROR"
+            pathToKey = os.getenv("DEFAULT_PATH_TO_KEY") or "ENV_ERROR"
             startAFresh = os.getenv("DEFAULT_START_A_FRESH") or "false"
 
         print("Launching runner using: ")
         print("User: " + user)
         print("Host: " + host)
-        print("nameOfKey: " + nameOfKey)
-        run_main(user, host, nameOfKey, startAFresh)
+        print("pathToKey: " + pathToKey)
+        run_main(user, host, pathToKey, startAFresh)
     except Exception as e:
+        raise
         raise
